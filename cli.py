@@ -1,0 +1,1 @@
+#This is our CLI file. It is the entry point of our application. It is responsible for parsing the command line arguments and calling the appropriate functions from the other files.
