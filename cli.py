@@ -51,12 +51,17 @@ def check_admin():
 def run_in_new_terminal():
     """Re-run the script in a new terminal window."""
     if os.name == 'nt':  # Windows
-        os.system(f'start cmd /k "{sys.executable} {__file__}"')
+        if 'run_in_new_terminal' not in sys.argv:
+            os.system(f'start cmd /k "{sys.executable} {__file__} run_in_new_terminal"')
+            sys.exit()
     elif sys.platform == 'darwin':  # macOS
-        os.system(f'osascript -e \'tell application "Terminal" to do script "{sys.executable} {__file__}"\'')
+        if 'run_in_new_terminal' not in sys.argv:
+            os.system(f'osascript -e \'tell application "Terminal" to do script "{sys.executable} {__file__} run_in_new_terminal"\'')
+            sys.exit()
     else:  # Linux
-        os.system(f'gnome-terminal -- {sys.executable} {__file__}')
-    sys.exit()
+        if 'run_in_new_terminal' not in sys.argv:
+            os.system(f'gnome-terminal -- {sys.executable} {__file__} run_in_new_terminal')
+            sys.exit()
 
 # CLI Functions
 def main_menu():
