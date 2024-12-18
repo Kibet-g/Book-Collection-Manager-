@@ -1,20 +1,64 @@
 #!/usr/bin/env python3
+
 import os
 import sys
+from subprocess import call
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
+# Database Setup
+Base = declarative_base()
+engine = create_engine('sqlite:///books.db')  # SQLite database
+Session = sessionmaker(bind=engine)
+
+# Models
+class Genre(Base):
+    __tablename__ = 'genres'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    books = relationship('Book', back_populates='genre')
+
+class Book(Base):
+    __tablename__ = 'books'
+    id = Column(Integer, primary_key=True)
+    title = Column(String, nullable=False)
+    author = Column(String, nullable=False)
+    status = Column(String, default="Unread")
+    genre_id = Column(Integer, ForeignKey('genres.id'))
+    genre = relationship('Genre', back_populates='books')
+
+# Initialize the database
+def initialize_database():
+    """Set up the database and tables."""
+    Base.metadata.create_all(engine)
+    print("Database initialized successfully.")
+
+# Check Admin Rights
 def check_admin():
-    """Check if the script is run as an administrator."""
-    if os.name == 'nt':  # For Windows
+    """Ensure the script is running with administrator privileges."""
+    if os.name == 'nt':  # Windows
         import ctypes
-        try:
-            is_admin = ctypes.windll.shell32.IsUserAnAdmin()
-            if not is_admin:
-                print("This script requires administrator privileges. Please run as an admin!")
-                sys.exit(1)
-        except Exception as e:
-            print("Admin check failed:", str(e))
-            sys.exit(1)
+        if not ctypes.windll.shell32.IsUserAnAdmin():
+            print("This script requires administrator privileges. Relaunching with elevated privileges...")
+            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+            sys.exit()
+    else:  # Unix/Linux
+        if os.geteuid() != 0:
+            print("This script requires administrator privileges. Please run with sudo.")
+            sys.exit()
 
+# Run in a New Terminal
+def run_in_new_terminal():
+    """Re-run the script in a new terminal window."""
+    if os.name == 'nt':  # Windows
+        os.system(f'start cmd /k "{sys.executable} {__file__}"')
+    elif sys.platform == 'darwin':  # macOS
+        os.system(f'osascript -e \'tell application "Terminal" to do script "{sys.executable} {__file__}"\'')
+    else:  # Linux
+        os.system(f'gnome-terminal -- {sys.executable} {__file__}')
+    sys.exit()
+
+# CLI Functions
 def main_menu():
     print("=======================================")
     print("      Welcome to Book Manager CLI      ")
@@ -91,9 +135,6 @@ def delete_book():
 def main():
     initialize_database()
 
-    # Optional admin check
-    # check_admin()
-
     while True:
         main_menu()
         choice = input("Enter your choice (1-5): ")
@@ -113,4 +154,8 @@ def main():
             print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 1:
+        check_admin()
+        run_in_new_terminal()
+    else:
+        main()
