@@ -51,9 +51,11 @@ def check_admin():
 def run_in_new_terminal():
     """Re-run the script in a new terminal window."""
     if os.name == 'nt':  # Windows
+        # Check if the argument is passed, indicating the script is already running in a new terminal
         if 'run_in_new_terminal' not in sys.argv:
+            # Start the new terminal and pass the argument to avoid recursion
             os.system(f'start cmd /k "{sys.executable} {__file__} run_in_new_terminal"')
-            sys.exit()
+            sys.exit()  # Exit the current instance to stop recursion
     elif sys.platform == 'darwin':  # macOS
         if 'run_in_new_terminal' not in sys.argv:
             os.system(f'osascript -e \'tell application "Terminal" to do script "{sys.executable} {__file__} run_in_new_terminal"\'')
