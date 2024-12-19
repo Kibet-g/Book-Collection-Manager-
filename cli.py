@@ -2,7 +2,6 @@
 
 import os
 import sys
-from subprocess import call
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
@@ -32,38 +31,6 @@ def initialize_database():
     """Set up the database and tables."""
     Base.metadata.create_all(engine)
     print("Database initialized successfully.")
-
-# Check Admin Rights
-def check_admin():
-    """Ensure the script is running with administrator privileges."""
-    if os.name == 'nt':  # Windows
-        import ctypes
-        if not ctypes.windll.shell32.IsUserAnAdmin():
-            print("This script requires administrator privileges. Relaunching with elevated privileges...")
-            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
-            sys.exit()
-    else:  # Unix/Linux
-        if os.geteuid() != 0:
-            print("This script requires administrator privileges. Please run with sudo.")
-            sys.exit()
-
-# Run in a New Terminal
-def run_in_new_terminal():
-    """Re-run the script in a new terminal window."""
-    if os.name == 'nt':  # Windows
-        # Check if the argument is passed, indicating the script is already running in a new terminal
-        if 'run_in_new_terminal' not in sys.argv:
-            # Start the new terminal and pass the argument to avoid recursion
-            os.system(f'start cmd /k "{sys.executable} {__file__} run_in_new_terminal"')
-            sys.exit()  # Exit the current instance to stop recursion
-    elif sys.platform == 'darwin':  # macOS
-        if 'run_in_new_terminal' not in sys.argv:
-            os.system(f'osascript -e \'tell application "Terminal" to do script "{sys.executable} {__file__} run_in_new_terminal"\'')
-            sys.exit()
-    else:  # Linux
-        if 'run_in_new_terminal' not in sys.argv:
-            os.system(f'gnome-terminal -- {sys.executable} {__file__} run_in_new_terminal')
-            sys.exit()
 
 # CLI Functions
 def main_menu():
@@ -161,8 +128,4 @@ def main():
             print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        check_admin()
-        run_in_new_terminal()
-    else:
-        main()
+    main()
