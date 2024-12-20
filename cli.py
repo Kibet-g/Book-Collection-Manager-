@@ -5,12 +5,12 @@ import sys
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 
-# Database Setup
+# Base class for declarative models
 Base = declarative_base()
-engine = create_engine('sqlite:///books.db')  # SQLite database
+engine = create_engine('sqlite:///books.db')  # Database file is books.db
 Session = sessionmaker(bind=engine)
 
-# Models
+
 class Genre(Base):
     __tablename__ = 'genres'
     id = Column(Integer, primary_key=True)
@@ -26,13 +26,12 @@ class Book(Base):
     genre_id = Column(Integer, ForeignKey('genres.id'))
     genre = relationship('Genre', back_populates='books')
 
-# Initialize the database
+# Create the database and tables
 def initialize_database():
     """Set up the database and tables."""
     Base.metadata.create_all(engine)
     print("Database initialized successfully.")
-
-# CLI Functions
+# Main menu
 def main_menu():
     print("=======================================")
     print("      Welcome to Book Manager CLI      ")
@@ -43,7 +42,7 @@ def main_menu():
     print("3. Update Book Status")
     print("4. Delete a Book")
     print("5. Exit")
-
+# Add a new book to the collection
 def add_book():
     session = Session()
     title = input("Enter the book title: ")
